@@ -33,7 +33,6 @@ def test_registration():
     """Test user registration."""
     print_test("User Registration")
     
-    # Register first player
     response = requests.post(f"{BASE_URL}/user/register", json={
         "nickname": "Alice",
         "password": "password123"
@@ -47,7 +46,6 @@ def test_registration():
         print_result(False, "Alice registration failed")
         return None, None
     
-    # Register second player
     response = requests.post(f"{BASE_URL}/user/register", json={
         "nickname": "Bob",
         "password": "password456"
@@ -165,7 +163,6 @@ def test_pick_set(token: str, cards: List[Dict], player_name: str):
     """Test picking a set."""
     print_test(f"Picking a Set ({player_name})")
     
-    # Try to find a valid set
     valid_set = find_valid_set(cards)
     
     if valid_set:
@@ -185,7 +182,6 @@ def test_pick_set(token: str, cards: List[Dict], player_name: str):
             print_result(False, "Failed to pick set")
             return False
     else:
-        # Try an invalid set for testing
         print("   No valid set found, testing with invalid set")
         invalid_set = [cards[0]["id"], cards[1]["id"], cards[2]["id"]]
         print(f"   Invalid set: {invalid_set}")
@@ -251,47 +247,37 @@ def main():
     print(f"Testing server at: {BASE_URL}")
     
     try:
-        # Test 1: Registration
         alice_token, bob_token = test_registration()
         if not alice_token or not bob_token:
             print("\n❌ Registration failed, cannot continue tests")
             return
         
-        # Test 2: Game creation
         game_id = test_game_creation(alice_token)
         if game_id is None:
             print("\n❌ Game creation failed, cannot continue tests")
             return
         
-        # Test 3: Game listing
         test_game_list(alice_token)
         
-        # Test 4: Enter game (both players)
         if not test_enter_game(alice_token, game_id, "Alice"):
             print("\n❌ Alice failed to enter game, cannot continue tests")
             return
         test_enter_game(bob_token, game_id, "Bob")
         
-        # Test 5: Get field cards
         cards = test_get_field(alice_token, "Alice")
         if not cards:
             print("\n❌ Failed to get cards, cannot continue tests")
             return
         
-        # Test 6: Pick a set
         test_pick_set(alice_token, cards, "Alice")
         
-        # Test 7: Add cards
         test_add_cards(alice_token, "Alice")
         
-        # Test 8: Get updated field
         cards = test_get_field(alice_token, "Alice")
         
-        # Test 9: Bob picks a set
         if cards:
             test_pick_set(bob_token, cards, "Bob")
         
-        # Test 10: Get scores
         test_scores(alice_token)
         
         print("\n" + "=" * 60)
