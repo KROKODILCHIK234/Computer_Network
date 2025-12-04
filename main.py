@@ -68,7 +68,7 @@ class GameRoom:
         self.game_id = game_id
         self.deck: List[Card] = []
         self.field: List[Card] = []
-        self.players: Dict[str, int] = {}  # accessToken -> score
+        self.players: Dict[str, int] = {}  
         self.status = "ongoing"
         self._initialize_deck()
         self._deal_initial_cards()
@@ -133,22 +133,18 @@ class GameRoom:
         is_set = self.is_valid_set(cards[0], cards[1], cards[2])
 
         if is_set:
-            # Remove cards from field
+
             for card in cards:
                 self.field.remove(card)
 
-            # Add points
             self.players[access_token] += 1
 
-            # Replace cards if deck has cards and field < 12
             while len(self.field) < 12 and self.deck:
                 self.field.append(self.deck.pop())
 
-            # Check if game ended
             if not self.deck and len(self.field) < 3:
                 self.status = "ended"
         else:
-            # Penalty for wrong set
             self.players[access_token] -= 1
 
         return is_set, self.players[access_token]
@@ -164,8 +160,8 @@ class GameRoom:
 
 class ServerState:
     def __init__(self):
-        self.users: Dict[str, Dict] = {}  # accessToken -> {nickname, password, current_game_id}
-        self.games: Dict[int, GameRoom] = {}  # gameId -> GameRoom
+        self.users: Dict[str, Dict] = {}  
+        self.games: Dict[int, GameRoom] = {}  
         self.next_game_id = 0
 
     def register_user(self, nickname: str, password: str) -> str:
@@ -464,7 +460,6 @@ def get_scores(req: ScoresRequest):
                 "score": score
             })
 
-        # Sort by score descending
         users.sort(key=lambda x: x["score"], reverse=True)
 
         return {
